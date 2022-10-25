@@ -2,9 +2,13 @@ package sql.field;
 
 public enum SQLKeyType {
 
-    FOREIGN,
+    FOREIGN_KEY,
     UNIQUE,
-    PRIMARY,
-    NONE
+    PRIMARY_KEY,
+    NONE;
+
+    public String toString() {
+        return super.toString().replace("_", " ");
+    }
 
 }

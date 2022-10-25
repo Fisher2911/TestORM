@@ -3,30 +3,27 @@ package sql;
 public interface SQLType {
 
     String getColName();
-    boolean isType(Object o);
 
-    SQLType INTEGER = new SQLType() {
-        @Override
-        public String getColName() {
-            return "INTEGER";
-        }
+    SQLType INTEGER = () -> "INTEGER";
 
-        @Override
-        public boolean isType(Object o) {
-            return o instanceof Integer;
-        }
-    };
+    SQLType DOUBLE = () -> "DOUBLE";
 
-    SQLType BOOLEAN = new SQLType() {
-        @Override
-        public String getColName() {
-            return "BOOLEAN";
-        }
+    SQLType BOOLEAN = () -> "BOOLEAN";
 
-        @Override
-        public boolean isType(Object o) {
-            return o instanceof Boolean;
-        }
-    };
+    static SQLType text(int length) {
+        return () -> "TEXT(" + length + ")";
+    }
+
+    static SQLType text() {
+        return () -> "TEXT";
+    }
+
+    static SQLType varchar(int length) {
+        return () -> "VARCHAR(" + length + ")";
+    }
+
+    static SQLType varchar() {
+        return () -> "VARCHAR";
+    }
 
 }
