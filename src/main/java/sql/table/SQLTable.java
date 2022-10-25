@@ -9,15 +9,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface Table extends SQLObject {
+public interface SQLTable extends SQLObject {
 
     String getName();
     List<SQLField> getFields();
     SQLForeignField createForeignReference(SQLField field, List<SQLField> idFields, ForeignKeyAction... actions);
     void create(Connection connection) throws SQLException;
 
-    static SQLiteTable.Builder sqlite(String name) {
-        return SQLiteTable.builder(name);
+    static SQLTableImpl.Builder sqlite(String name) {
+        return SQLTableImpl.builder(name);
     }
 
 }

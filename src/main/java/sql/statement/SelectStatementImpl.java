@@ -11,14 +11,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class SQLiteSelectStatement<T> implements SQLQuery<T> {
+public class SelectStatementImpl<T> implements SQLQuery<T> {
 
     private final String tableName;
     private final List<SQLField> fields;
     private final List<SQLCondition> conditions;
     private final List<SQLJoin> joins;
 
-    private SQLiteSelectStatement(
+    private SelectStatementImpl(
             String tableName,
             List<SQLField> fields,
             List<SQLCondition> conditions,
@@ -71,6 +71,13 @@ public class SQLiteSelectStatement<T> implements SQLQuery<T> {
 
     public Collection<T> mapTo(Connection connection, SQLMapper<T> mapper) throws SQLException {
         try (var statement = connection.prepareStatement(this.createStatement())) {
+            int currentIndex = 0;
+            for (var condition : this.conditions) {
+                for (var insertion : condition.getInsertionColumns()) {
+                    currentIndex++;
+                    statement.setObject(currentIndex, insertion.second().createStatement());
+                }
+            }
             return mapper.map(statement.executeQuery());
         }
     }
@@ -113,8 +120,8 @@ public class SQLiteSelectStatement<T> implements SQLQuery<T> {
             return this;
         }
 
-        public SQLiteSelectStatement<T> build() {
-            return new SQLiteSelectStatement<>(this.tableName, this.fields, this.conditions, this.joins);
+        public SelectStatementImpl<T> build() {
+            return new SelectStatementImpl<>(this.tableName, this.fields, this.conditions, this.joins);
         }
     }
 }

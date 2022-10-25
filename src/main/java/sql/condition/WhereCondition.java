@@ -8,6 +8,7 @@ import sql.field.SQLField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class WhereCondition implements SQLCondition {
 
@@ -22,13 +23,22 @@ public class WhereCondition implements SQLCondition {
         final StringBuilder builder = new StringBuilder();
         int index = 0;
         for (var pair : this.conditions) {
-            builder.append(pair.first().getTableAndName()).append(" = (").append(pair.second().createStatement()).append(")");
+            builder.append(pair.first().getTableAndName()).append(" = (?)");/*.append(pair.second().createStatement()).append(")");*/
             if (index < this.conditions.size() - 1) {
                 builder.append(" AND ");
             }
             index++;
         }
         return builder.toString();
+    }
+
+    public List<Pair<Integer, SQLObject>> getInsertionColumns() {
+        final List<Pair<Integer, SQLObject>> columns = new ArrayList<>();
+        int index = 1;
+        for (var pair : this.conditions) {
+            columns.add(Pair.of(index, pair.second()));
+        }
+        return columns;
     }
 
     protected static Builder builder() {

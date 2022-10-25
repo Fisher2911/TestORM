@@ -20,8 +20,8 @@ public interface SQLStatement<T> extends SQLObject {
     @Nullable
     <ID> ID insert(Connection connection, IDFinder<ID> idFinder) throws SQLException;
 
-    static <T> SQLiteInsertStatement.Builder<T> sqliteInsert(String tableName) {
-        return SQLiteInsertStatement.builder(tableName);
+    static <T> InsertStatementImpl.Builder<T> sqliteInsert(String tableName) {
+        return InsertStatementImpl.builder(tableName);
     }
 
 }

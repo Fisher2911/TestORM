@@ -1,7 +1,5 @@
 package sql.statement;
 
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import sql.Pair;
 import sql.field.SQLField;
 
@@ -11,15 +9,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.List;
 
-public class SQLiteInsertStatement<T> implements SQLStatement<T> {
+public class InsertStatementImpl<T> implements SQLStatement<T> {
 
     private final String tableName;
     private final List<Pair<String, Object>> values;
 
-    private SQLiteInsertStatement(String tableName, List<Pair<String, Object>> values) {
+    private InsertStatementImpl(String tableName, List<Pair<String, Object>> values) {
         this.tableName = tableName;
         this.values = values;
     }
@@ -110,8 +107,8 @@ public class SQLiteInsertStatement<T> implements SQLStatement<T> {
             return this.addAll(Arrays.asList(values));
         }
 
-        public SQLiteInsertStatement<T> build() {
-            return new SQLiteInsertStatement<T>(this.tableName, this.values);
+        public InsertStatementImpl<T> build() {
+            return new InsertStatementImpl<T>(this.tableName, this.values);
         }
     }
 }

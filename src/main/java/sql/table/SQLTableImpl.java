@@ -3,6 +3,8 @@ package sql.table;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import sql.dialect.SQLDialect;
+import sql.dialect.SystemDialect;
 import sql.field.ForeignKeyAction;
 import sql.field.SQLField;
 import sql.field.SQLForeignField;
@@ -15,13 +17,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class SQLiteTable implements Table {
+public class SQLTableImpl implements SQLTable {
 
     private final String name;
     private final List<SQLField> fields;
     private final Multimap<SQLKeyType, SQLField> keys;
 
-    private SQLiteTable(String name, List<SQLField> fields) {
+    private SQLTableImpl(String name, List<SQLField> fields) {
         this.name = name;
         this.fields = fields;
         this.keys = Multimaps.newListMultimap(new HashMap<>(), ArrayList::new);
@@ -43,6 +45,7 @@ public class SQLiteTable implements Table {
         }
         for (var key : this.keys.keySet()) {
             if (key == SQLKeyType.NONE) continue;
+            if (key == SQLKeyType.PRIMARY_KEY && SystemDialect.getDialect() == SQLDialect.MYSQL) continue;
             builder.append(", ");
             if (key != SQLKeyType.FOREIGN_KEY) builder.append(key.toString()).append("(");
             int keyIndex = 0;
@@ -113,8 +116,8 @@ public class SQLiteTable implements Table {
             return this;
         }
 
-        public SQLiteTable build() {
-            return new SQLiteTable(this.name, this.fields);
+        public SQLTableImpl build() {
+            return new SQLTableImpl(this.name, this.fields);
         }
     }
 }

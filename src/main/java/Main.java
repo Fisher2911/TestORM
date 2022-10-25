@@ -1,14 +1,18 @@
 import sql.SQLMapper;
 import sql.SQLType;
 import sql.condition.SQLCondition;
+import sql.dialect.SQLDialect;
+import sql.dialect.SystemDialect;
 import sql.field.ForeignKeyAction;
 import sql.field.SQLField;
 import sql.field.SQLForeignField;
+import sql.field.SQLIdField;
 import sql.field.SQLKeyType;
+import sql.statement.DeleteStatement;
 import sql.statement.SQLJoinType;
 import sql.statement.SQLQuery;
 import sql.statement.SQLStatement;
-import sql.table.Table;
+import sql.table.SQLTable;
 import sql.test.Member;
 import sql.test.TestObject;
 
@@ -26,7 +30,7 @@ import java.util.Map;
 public class Main {
 
     private static final String KINGDOMS_TABLE_NAME = "kingdoms";
-    private static final SQLField KINGDOMS_ID_FIELD = new SQLField(KINGDOMS_TABLE_NAME, "id", SQLType.INTEGER, SQLKeyType.PRIMARY_KEY);
+    private static final SQLField KINGDOMS_ID_FIELD = new SQLIdField(KINGDOMS_TABLE_NAME, "id", SQLType.INTEGER, SQLKeyType.PRIMARY_KEY, true);
     private static final SQLField KINGDOMS_NAME_FIELD = new SQLField(KINGDOMS_TABLE_NAME, "name", SQLType.varchar(16));
     private static final SQLField KINGDOMS_DESCRIPTION_FIELD = new SQLField(KINGDOMS_TABLE_NAME, "description", SQLType.varchar(240));
 
@@ -37,14 +41,17 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
 
-        final Table kingdomsTable = Table.
+        SystemDialect.setDialect(SQLDialect.MYSQL);
+
+
+        final SQLTable kingdomsTable = SQLTable.
                 sqlite(KINGDOMS_TABLE_NAME).
                 addFields(KINGDOMS_ID_FIELD, KINGDOMS_NAME_FIELD, KINGDOMS_DESCRIPTION_FIELD).
                 build();
-        kingdomsTable.create(getConnection());
         System.out.println(kingdomsTable.createStatement());
+        kingdomsTable.create(getConnection());
 
-        final Table membersTable = Table.
+        final SQLTable membersTable = SQLTable.
                 sqlite("members").
                 addFields(MEMBERS_NAME_FIELD, MEMBERS_BALANCE_FIELD, MEMBERS_KINGDOM_ID_FIELD).
                 build();
@@ -58,6 +65,26 @@ public class Main {
                 build();
         final Integer id = tableInsertStatement.insert(getConnection(), SQLStatement.INTEGER_ID_FINDER);
         System.out.println("Inserted kingdom id: " + id);
+
+        final SQLStatement<TestObject> tableInsertStatement2 = SQLStatement.<TestObject>
+                        sqliteInsert(KINGDOMS_TABLE_NAME).
+                add(KINGDOMS_NAME_FIELD, "hi").
+                add(KINGDOMS_DESCRIPTION_FIELD, "a 2nd description of a kingdom").
+                build();
+        final Integer id2 = tableInsertStatement2.insert(getConnection(), SQLStatement.INTEGER_ID_FINDER);
+        System.out.println("Inserted kingdom id2: " + id2);
+
+        final DeleteStatement statement = DeleteStatement.
+                builder(kingdomsTable).
+                where(SQLCondition.where().addCondition(KINGDOMS_ID_FIELD, 1).build()).
+                where(SQLCondition.where().addCondition(KINGDOMS_NAME_FIELD, "hello").build()).
+                build();
+
+        System.out.println(statement.createStatement());
+        statement.execute(getConnection());
+
+        //language=SQLite
+        String s = "DELETE FROM `kingdoms` WHERE kingdoms.`id` = (1) AND kingdoms.`name` = ('hello')";
 
         for (int i = 0; i < 10; i++) {
             final SQLStatement<Member> memberSQLStatement = SQLStatement.<Member>

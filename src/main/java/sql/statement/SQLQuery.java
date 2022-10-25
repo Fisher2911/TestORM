@@ -11,8 +11,8 @@ public interface SQLQuery<T> extends SQLObject {
 
     Collection<T> mapTo(Connection connection, SQLMapper<T> mapper) throws SQLException;
 
-    static <T> SQLiteSelectStatement.Builder<T> sqliteSelect(String tableName) {
-        return SQLiteSelectStatement.builder(tableName);
+    static <T> SelectStatementImpl.Builder<T> sqliteSelect(String tableName) {
+        return SelectStatementImpl.builder(tableName);
     }
 
 }

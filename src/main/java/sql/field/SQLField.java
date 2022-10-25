@@ -3,6 +3,8 @@ package sql.field;
 
 import sql.SQLObject;
 import sql.SQLType;
+import sql.dialect.SQLDialect;
+import sql.dialect.SystemDialect;
 
 public class SQLField implements SQLObject {
 
